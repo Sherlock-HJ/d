@@ -27,17 +27,15 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		6607B6A0219588E700D99C50 /* h.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = h.txt; sourceTree = "<group>"; };
 		6666367621940A680060278A /* d */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = d; sourceTree = BUILT_PRODUCTS_DIR; };
 		6666367921940A680060278A /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		6686E29321951533001EC8BE /* NetTool.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NetTool.h; sourceTree = "<group>"; };
 		6686E29421951533001EC8BE /* NetTool.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NetTool.m; sourceTree = "<group>"; };
-		6686E29621953DE9001EC8BE /* coinapi.key */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = coinapi.key; sourceTree = "<group>"; };
-		6686E29721953DE9001EC8BE /* coinapi.crt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = coinapi.crt; sourceTree = "<group>"; };
 		6686E29D21957562001EC8BE /* HJSign.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HJSign.h; sourceTree = "<group>"; };
 		6686E29E21957562001EC8BE /* HJSign.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = HJSign.m; sourceTree = "<group>"; };
 		6686E2A121957967001EC8BE /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
 		6686E2A321957971001EC8BE /* SecurityFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SecurityFoundation.framework; path = System/Library/Frameworks/SecurityFoundation.framework; sourceTree = SDKROOT; };
+		66C8A198219C1768001C6485 /* p.p12 */ = {isa = PBXFileReference; lastKnownFileType = file; path = p.p12; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -78,9 +76,7 @@
 				6686E29421951533001EC8BE /* NetTool.m */,
 				6686E29D21957562001EC8BE /* HJSign.h */,
 				6686E29E21957562001EC8BE /* HJSign.m */,
-				6607B6A0219588E700D99C50 /* h.txt */,
-				6686E29721953DE9001EC8BE /* coinapi.crt */,
-				6686E29621953DE9001EC8BE /* coinapi.key */,
+				66C8A198219C1768001C6485 /* p.p12 */,
 			);
 			path = d;
 			sourceTree = "<group>";

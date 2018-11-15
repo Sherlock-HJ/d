@@ -83,15 +83,70 @@
         completionHandler(NSURLSessionAuthChallengeUseCredential , credential);
     }else if ([challenge.protectionSpace.authenticationMethod isEqualToString:NSURLAuthenticationMethodClientCertificate]){
         
-        
-//        NSURLCredential *credential =  [NSURLCredential credentialWithIdentity:<#(nonnull SecIdentityRef)#> certificates:<#(nullable NSArray *)#> persistence:<#(NSURLCredentialPersistence)#>];
-//        
+        SecIdentityRef ref = NULL;
+        NSArray<SecCertificateRef*>* cers = @[];
+        NSURLCredential *credential =  [NSURLCredential credentialWithIdentity:ref certificates:cers persistence:NSURLCredentialPersistenceSynchronizable];
+//
 //        // 4.发送证书
-//        completionHandler(NSURLSessionAuthChallengeUseCredential , credential);
+        completionHandler(NSURLSessionAuthChallengeUseCredential , credential);
 
+    }
+    
+    
+
+    else if([challenge.protectionSpace.authenticationMethod isEqualToString:NSURLAuthenticationMethodClientCertificate])
+    {
+        //客户端证书认证
+        //TODO:设置客户端证书认证
+        // load cert
+        NSLog(@"client");
+        NSString *path = [[NSBundle mainBundle]pathForResource:@"client"ofType:@"p12"];
+        NSData *p12data = [NSData dataWithContentsOfFile:path];
+        CFDataRef inP12data = (__bridge CFDataRef)p12data;
+        SecIdentityRef myIdentity;
+        OSStatus status = [self extractIdentity:inP12data toIdentity:&myIdentity];
+        if (status != 0) {
+            return;
+        }
+        SecCertificateRef myCertificate;
+        SecIdentityCopyCertificate(myIdentity, &myCertificate);
+        const void *certs[] = { myCertificate };
+        CFArrayRef certsArray =CFArrayCreate(NULL, certs,1,NULL);
+        NSURLCredential *credential = [NSURLCredential credentialWithIdentity:myIdentity certificates:CFBridgingRelease(certsArray) persistence:NSURLCredentialPersistencePermanent];
+        //        [[challenge sender] useCredential:credential forAuthenticationChallenge:challenge];
+        //         网上很多错误代码如上，正确的为：
+        completionHandler(NSURLSessionAuthChallengeUseCredential, credential);
     }
   
 }
+
+- (OSStatus)extractIdentity:(CFDataRef)inP12Data toIdentity:(SecIdentityRef*)identity {
+    OSStatus securityError = errSecSuccess;
+    CFStringRef password = CFSTR("123456");
+    const void *keys[] = { kSecImportExportPassphrase };
+    const void *values[] = { password };
+    CFDictionaryRef options = CFDictionaryCreate(NULL, keys, values, 1, NULL, NULL);
+    CFArrayRef items = CFArrayCreate(NULL, 0, 0, NULL);
+    securityError = SecPKCS12Import(inP12Data, options, &items);
+    if (securityError == 0)
+    {
+        CFDictionaryRef ident = CFArrayGetValueAtIndex(items,0);
+        const void *tempIdentity = NULL;
+        tempIdentity = CFDictionaryGetValue(ident, kSecImportItemIdentity);
+        *identity = (SecIdentityRef)tempIdentity;
+    }
+    else
+    {
+        NSLog(@"clinet.p12 error!");
+    }
+    
+    if (options) {
+        CFRelease(options);
+    }
+    return securityError;
+}
+
+
 
 #pragma mark - NSURLSessionTaskDelegate
 //- (void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task didReceiveChallenge:(NSURLAuthenticationChallenge *)challenge completionHandler:(void (^)(NSURLSessionAuthChallengeDisposition, NSURLCredential * _Nullable))completionHandler{

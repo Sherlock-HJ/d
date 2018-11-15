@@ -5,19 +5,20 @@
 //  Created by lyt on 2018/11/9.
 //  Copyright © 2018年 吴宏佳. All rights reserved.
 //
+#define kRSA_KEY_SIZE 1024
 
 #import "HJSign.h"
 #import <Security/Security.h>
+#import <Security/SecBase.h>
+#include <Security/SecKey.h>
 
 @implementation HJSign
 + (SecKeyRef)getPrivateKeyRefrenceFromData:(NSData*)p12Data password:(NSString*)password {
-    p12Data = [[NSData alloc] initWithBase64EncodedData:p12Data options:NSDataBase64DecodingIgnoreUnknownCharacters];
-
+    
     SecKeyRef privateKeyRef = NULL;
-    NSMutableDictionary * options = [[NSMutableDictionary alloc] init];
-    [options setObject: password forKey:(__bridge id)kSecImportExportPassphrase];
+    NSDictionary * options = @{(__bridge id)kSecImportExportPassphrase:password};
     CFArrayRef items = CFArrayCreate(NULL, 0, 0, NULL);
-    OSStatus securityError = SecPKCS12Import(CFBridgingRetain( p12Data), NULL, &items);
+    OSStatus securityError = SecPKCS12Import(CFBridgingRetain( p12Data), CFBridgingRetain( options), &items);
     if (securityError == noErr && CFArrayGetCount(items) > 0) {
         CFDictionaryRef identityDict = CFArrayGetValueAtIndex(items, 0);
         SecIdentityRef identityApp = (SecIdentityRef)CFDictionaryGetValue(identityDict, kSecImportItemIdentity);
@@ -32,89 +33,70 @@
     
     return privateKeyRef;
     
-    
 }
 + (SecKeyRef) getPublicKey{// 从公钥证书文件中获取到公钥的SecKeyRef指针
+    //由于后台给我的字符串时base过的所以要转回来，没有的请忽视
+    
+    NSData *certificateData = [NSData dataWithContentsOfFile:@"/Users/gd/Desktop/work/d/d/coinapi.crt"];
+    certificateData = [[NSData alloc] initWithBase64EncodedData:certificateData options:NSDataBase64DecodingIgnoreUnknownCharacters];
     
     
-    SecKeyRef _public_key = NULL ;
-    if(_public_key == NULL){
+    SecCertificateRef myCertificate = SecCertificateCreateWithData(kCFAllocatorDefault, CFBridgingRetain(certificateData));
+    
+    SecPolicyRef myPolicy = SecPolicyCreateBasicX509();
+    
+    SecTrustRef myTrust;
+    
+    OSStatus status = SecTrustCreateWithCertificates(myCertificate,myPolicy,&myTrust);
+    
+    SecTrustResultType trustResult;
+    
+    if (status == noErr) {
         
-        //由于后台给我的字符串时base过的所以要转回来，没有的请忽视
-        
-        NSData *certificateData = [NSData dataWithContentsOfFile:@"/Users/gd/Desktop/work/d/d/coinapi.crt"];
-        certificateData = [[NSData alloc] initWithBase64EncodedData:certificateData options:NSDataBase64DecodingIgnoreUnknownCharacters];
-        
-        
-        SecCertificateRef myCertificate = SecCertificateCreateWithData(kCFAllocatorDefault, CFBridgingRetain(certificateData));
-        
-        SecPolicyRef myPolicy = SecPolicyCreateBasicX509();
-        
-        SecTrustRef myTrust;
-        
-        OSStatus status = SecTrustCreateWithCertificates(myCertificate,myPolicy,&myTrust);
-        
-        SecTrustResultType trustResult;
-        
-        if (status == noErr) {
-            
-            status = SecTrustEvaluate(myTrust, &trustResult);
-            
-        }
-        
-        _public_key = SecTrustCopyPublicKey(myTrust);
-        
-        CFRelease(myCertificate);
-        
-        CFRelease(myPolicy);
-        
-        CFRelease(myTrust);
+        status = SecTrustEvaluate(myTrust, &trustResult);
         
     }
     
-    return _public_key;
+    SecKeyRef public_key = SecTrustCopyPublicKey(myTrust);
+    
+    CFRelease(myCertificate);
+    
+    CFRelease(myPolicy);
+    
+    CFRelease(myTrust);
+    
+    
+    
+    return public_key;
     
 }
 
-+ (void)sign{
++ (NSString*)signSHA256PlainData:(NSData *)plainData privateKeyData:(NSData *)privateKeyData password:(NSString *)password{
     
-    
-    
-    
-    //私钥签名，公钥验证签名
-    //    size_t siglen = SecKeyGetBlockSize(privateKeyRef);
-    //    uint8_t *sig = malloc(siglen);
-    //    bzero(sig, siglen);
-    
-    //    OSStatus SecKeyRawSign(
-    //                           SecKeyRef           key,
-    //                           SecPadding          padding,
-    //                           const uint8_t       *dataToSign,
-    //                           size_t              dataToSignLen,
-    //                           uint8_t             *sig,
-    //                           size_t              *sigLen)
-    
-    SecKeyRef publicKeyRef  = [self getPublicKey];
-    
-    NSData *privateKeyData = [NSData dataWithContentsOfFile:@"/Users/gd/Desktop/work/d/d/coinapi.key"];
-    
-    SecKeyRef privateKeyRef = [self getPrivateKeyRefrenceFromData:privateKeyData password:@""];//私钥
-    
-    
-    //    NSString *tpath = [[NSBundle mainBundle] pathForResource:@"src.txt" ofType:nil];
-    //    NSData *ttDt = [NSData dataWithContentsOfFile:tpath];
-    //使用了下面封装的hash接口
-    //    NSData *sha1dg = [ttDt hashDataWith:CCDIGEST_SHA1];
-    NSData *sha1dg = nil;
-    
-    OSStatus ret;
-    
-    
-    //私钥签名，公钥验证签名
+    SecKeyRef ref = [self getPrivateKeyRefrenceFromData:privateKeyData password:password];
+    return [self signPlainData:plainData privateKeyRef:ref padding:kSecPaddingPKCS1SHA256];
+}
+
++ (NSString*)signPlainData:(NSData *)plainData privateKeyData:(NSData *)privateKeyData password:(NSString *)password padding:(SecPadding)padding{
+
+    SecKeyRef ref = [self getPrivateKeyRefrenceFromData:privateKeyData password:password];
+    return [self signPlainData:plainData privateKeyRef:ref padding:padding];
+}
+
++ (NSString*)signPlainData:(NSData *)plainData privateKeyRef:(SecKeyRef)privateKeyRef padding:(SecPadding)padding{
+
+    //私钥签名
     size_t siglen = SecKeyGetBlockSize(privateKeyRef);
     uint8_t *sig = malloc(siglen);
     bzero(sig, siglen);
-    ret = SecKeyRawSign(privateKeyRef, kSecPaddingPKCS1SHA256, sha1dg.bytes, sha1dg.length, sig, &siglen);
-    NSAssert(ret==errSecSuccess, @"签名失败");
+    
+    OSStatus ret = SecKeyRawSign(privateKeyRef, padding, plainData.bytes, plainData.length, sig, &siglen);
+    NSString *string = nil;
+    if (ret==errSecSuccess) {
+        string = [[NSData dataWithBytes:sig length:siglen] base64EncodedStringWithOptions:NSDataBase64Encoding76CharacterLineLength];
+    }
+    free(sig);
+
+    return string;
 }
 @end
