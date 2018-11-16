@@ -7,6 +7,7 @@
 //
 
 #import "NetTool.h"
+#import "HJSecurity.h"
 
 @interface NSDictionary (NetTool)
 - (NSData*)HTTPBody;
@@ -28,11 +29,17 @@
 
 
 @interface NetTool ()<NSURLSessionDataDelegate>
+@property (strong, nonatomic) NSURLSession *session;
 
 @end
 
 @implementation NetTool
-
+- (NSURLSession *)session{
+    if (!_session) {
+        _session =[NSURLSession sessionWithConfiguration:[NSURLSessionConfiguration defaultSessionConfiguration] delegate:self delegateQueue:[NSOperationQueue mainQueue]];
+    }
+    return _session;
+}
 +(instancetype)share{
     static NetTool *tool = nil;
     static dispatch_once_t onceToken;
@@ -43,7 +50,7 @@
 }
 
 + (NSURLSession*)session{
-   return  [NSURLSession sessionWithConfiguration:[NSURLSessionConfiguration defaultSessionConfiguration] delegate:[NetTool share] delegateQueue:[NSOperationQueue mainQueue]];
+    return  [NetTool share].session;
 }
 + (NSURLSessionTask*)POST:(NSString*)urlStr parameters:(NSDictionary*)params{
     NSURL *url = [NSURL URLWithString:urlStr];
@@ -51,11 +58,12 @@
     mutableRequest.HTTPMethod = @"POST";
     mutableRequest.HTTPBody = params.HTTPBody ;
     [mutableRequest setValue:@"application/x-www-form-urlencoded" forHTTPHeaderField:@"Content-Type"];
+    
     if (![mutableRequest valueForHTTPHeaderField:@"Content-Type"]) {
     }
     NSURLSessionTask * task = [self.session dataTaskWithRequest:mutableRequest];
     [task resume];
-   
+    
     return task;
 }
 
@@ -81,72 +89,20 @@
         NSURLCredential *credential = [NSURLCredential credentialForTrust:challenge.protectionSpace.serverTrust];
         // 4.安装证书
         completionHandler(NSURLSessionAuthChallengeUseCredential , credential);
-    }else if ([challenge.protectionSpace.authenticationMethod isEqualToString:NSURLAuthenticationMethodClientCertificate]){
-        
-        SecIdentityRef ref = NULL;
-        NSArray<SecCertificateRef*>* cers = @[];
-        NSURLCredential *credential =  [NSURLCredential credentialWithIdentity:ref certificates:cers persistence:NSURLCredentialPersistenceSynchronizable];
-//
-//        // 4.发送证书
-        completionHandler(NSURLSessionAuthChallengeUseCredential , credential);
-
-    }
-    
-    
-
-    else if([challenge.protectionSpace.authenticationMethod isEqualToString:NSURLAuthenticationMethodClientCertificate])
-    {
+    }else if([challenge.protectionSpace.authenticationMethod isEqualToString:NSURLAuthenticationMethodClientCertificate]){
         //客户端证书认证
-        //TODO:设置客户端证书认证
-        // load cert
-        NSLog(@"client");
-        NSString *path = [[NSBundle mainBundle]pathForResource:@"client"ofType:@"p12"];
-        NSData *p12data = [NSData dataWithContentsOfFile:path];
-        CFDataRef inP12data = (__bridge CFDataRef)p12data;
-        SecIdentityRef myIdentity;
-        OSStatus status = [self extractIdentity:inP12data toIdentity:&myIdentity];
-        if (status != 0) {
-            return;
-        }
-        SecCertificateRef myCertificate;
-        SecIdentityCopyCertificate(myIdentity, &myCertificate);
-        const void *certs[] = { myCertificate };
-        CFArrayRef certsArray =CFArrayCreate(NULL, certs,1,NULL);
-        NSURLCredential *credential = [NSURLCredential credentialWithIdentity:myIdentity certificates:CFBridgingRelease(certsArray) persistence:NSURLCredentialPersistencePermanent];
-        //        [[challenge sender] useCredential:credential forAuthenticationChallenge:challenge];
-        //         网上很多错误代码如上，正确的为：
+        
+        NSData *p12Data = [NSData dataWithContentsOfFile:@"/Users/gd/Desktop/work/d/d/coinapi.p12"];
+        SecIdentityRef identity = [HJSecurity getIdentityFromP12Data:p12Data password:@"1111"];
+        
+        SecCertificateRef certificate = [HJSecurity getCertificateFromP12Data:p12Data password:@"1111"];
+        
+        NSURLCredential *credential = [NSURLCredential credentialWithIdentity:identity certificates:@[(__bridge id)certificate] persistence:NSURLCredentialPersistencePermanent];
+        ////        // 4.发送证书
         completionHandler(NSURLSessionAuthChallengeUseCredential, credential);
     }
-  
-}
-
-- (OSStatus)extractIdentity:(CFDataRef)inP12Data toIdentity:(SecIdentityRef*)identity {
-    OSStatus securityError = errSecSuccess;
-    CFStringRef password = CFSTR("123456");
-    const void *keys[] = { kSecImportExportPassphrase };
-    const void *values[] = { password };
-    CFDictionaryRef options = CFDictionaryCreate(NULL, keys, values, 1, NULL, NULL);
-    CFArrayRef items = CFArrayCreate(NULL, 0, 0, NULL);
-    securityError = SecPKCS12Import(inP12Data, options, &items);
-    if (securityError == 0)
-    {
-        CFDictionaryRef ident = CFArrayGetValueAtIndex(items,0);
-        const void *tempIdentity = NULL;
-        tempIdentity = CFDictionaryGetValue(ident, kSecImportItemIdentity);
-        *identity = (SecIdentityRef)tempIdentity;
-    }
-    else
-    {
-        NSLog(@"clinet.p12 error!");
-    }
     
-    if (options) {
-        CFRelease(options);
-    }
-    return securityError;
 }
-
-
 
 #pragma mark - NSURLSessionTaskDelegate
 //- (void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task didReceiveChallenge:(NSURLAuthenticationChallenge *)challenge completionHandler:(void (^)(NSURLSessionAuthChallengeDisposition, NSURLCredential * _Nullable))completionHandler{
@@ -170,7 +126,17 @@ didBecomeStreamTask:(NSURLSessionStreamTask *)streamTask{
 }
 - (void)URLSession:(NSURLSession *)session dataTask:(NSURLSessionDataTask *)dataTask
     didReceiveData:(NSData *)data{
-    NSLog(@"%@",[[NSString alloc]initWithData:data encoding:NSUTF8StringEncoding]);
+    
+    id res = [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingMutableContainers error:nil];
+    if (res) {
+        NSLog(@"%@",res);
+        
+    }else{
+        NSLog(@"%@",[[NSString alloc]initWithData:data encoding:NSUTF8StringEncoding]);
+        
+    }
+    
+    
 }
 - (void)URLSession:(NSURLSession *)session dataTask:(NSURLSessionDataTask *)dataTask
  willCacheResponse:(NSCachedURLResponse *)proposedResponse
