@@ -136,7 +136,7 @@
     OSStatus ret = SecKeyRawSign(privateKeyRef, padding, plainData.bytes, plainData.length, sig, &siglen);
     NSString *string = nil;
     if (ret==errSecSuccess) {
-        string = [[NSData dataWithBytes:sig length:siglen] base64EncodedStringWithOptions:NSDataBase64Encoding76CharacterLineLength];
+        string = [[NSData dataWithBytes:sig length:siglen] base64EncodedStringWithOptions:NSDataBase64Encoding64CharacterLineLength];
     }
     free(sig);
     

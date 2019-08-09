@@ -8,10 +8,12 @@
 
 /* Begin PBXBuildFile section */
 		6666367A21940A680060278A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 6666367921940A680060278A /* main.m */; };
-		6686E29521951533001EC8BE /* NetTool.m in Sources */ = {isa = PBXBuildFile; fileRef = 6686E29421951533001EC8BE /* NetTool.m */; };
-		6686E29F21957562001EC8BE /* HJSecurity.m in Sources */ = {isa = PBXBuildFile; fileRef = 6686E29E21957562001EC8BE /* HJSecurity.m */; };
 		6686E2A221957968001EC8BE /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6686E2A121957967001EC8BE /* Security.framework */; };
 		6686E2A421957972001EC8BE /* SecurityFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6686E2A321957971001EC8BE /* SecurityFoundation.framework */; };
+		66C3DCA621A5044F002EEC50 /* HJSecurity.m in Sources */ = {isa = PBXBuildFile; fileRef = 66C3DC9F21A5044F002EEC50 /* HJSecurity.m */; };
+		66C3DCA721A5044F002EEC50 /* MXApi.m in Sources */ = {isa = PBXBuildFile; fileRef = 66C3DCA121A5044F002EEC50 /* MXApi.m */; };
+		66C3DCA821A5044F002EEC50 /* MXApiObject.m in Sources */ = {isa = PBXBuildFile; fileRef = 66C3DCA321A5044F002EEC50 /* MXApiObject.m */; };
+		66C3DCA921A5044F002EEC50 /* MXPrivateApiObject.m in Sources */ = {isa = PBXBuildFile; fileRef = 66C3DCA521A5044F002EEC50 /* MXPrivateApiObject.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -29,16 +31,17 @@
 /* Begin PBXFileReference section */
 		6666367621940A680060278A /* d */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = d; sourceTree = BUILT_PRODUCTS_DIR; };
 		6666367921940A680060278A /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
-		6686E29321951533001EC8BE /* NetTool.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NetTool.h; sourceTree = "<group>"; };
-		6686E29421951533001EC8BE /* NetTool.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NetTool.m; sourceTree = "<group>"; };
-		6686E29D21957562001EC8BE /* HJSecurity.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HJSecurity.h; sourceTree = "<group>"; };
-		6686E29E21957562001EC8BE /* HJSecurity.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = HJSecurity.m; sourceTree = "<group>"; };
 		6686E2A121957967001EC8BE /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
 		6686E2A321957971001EC8BE /* SecurityFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SecurityFoundation.framework; path = System/Library/Frameworks/SecurityFoundation.framework; sourceTree = SDKROOT; };
-		66C8A198219C1768001C6485 /* p.p12 */ = {isa = PBXFileReference; lastKnownFileType = file; path = p.p12; sourceTree = "<group>"; };
-		66C8A199219E5FEC001C6485 /* coinapi.crt */ = {isa = PBXFileReference; lastKnownFileType = text; path = coinapi.crt; sourceTree = "<group>"; };
-		66C8A19A219E5FEC001C6485 /* coinapi.key */ = {isa = PBXFileReference; lastKnownFileType = text; path = coinapi.key; sourceTree = "<group>"; };
-		66C8A19B219E7725001C6485 /* coinapi.p12 */ = {isa = PBXFileReference; lastKnownFileType = file; path = coinapi.p12; sourceTree = "<group>"; };
+		66C3DC9D21A5044F002EEC50 /* coinapi.p12 */ = {isa = PBXFileReference; lastKnownFileType = file; path = coinapi.p12; sourceTree = "<group>"; };
+		66C3DC9E21A5044F002EEC50 /* HJSecurity.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HJSecurity.h; sourceTree = "<group>"; };
+		66C3DC9F21A5044F002EEC50 /* HJSecurity.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HJSecurity.m; sourceTree = "<group>"; };
+		66C3DCA021A5044F002EEC50 /* MXApi.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MXApi.h; sourceTree = "<group>"; };
+		66C3DCA121A5044F002EEC50 /* MXApi.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MXApi.m; sourceTree = "<group>"; };
+		66C3DCA221A5044F002EEC50 /* MXApiObject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MXApiObject.h; sourceTree = "<group>"; };
+		66C3DCA321A5044F002EEC50 /* MXApiObject.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MXApiObject.m; sourceTree = "<group>"; };
+		66C3DCA421A5044F002EEC50 /* MXPrivateApiObject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MXPrivateApiObject.h; sourceTree = "<group>"; };
+		66C3DCA521A5044F002EEC50 /* MXPrivateApiObject.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MXPrivateApiObject.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -75,14 +78,7 @@
 			isa = PBXGroup;
 			children = (
 				6666367921940A680060278A /* main.m */,
-				6686E29321951533001EC8BE /* NetTool.h */,
-				6686E29421951533001EC8BE /* NetTool.m */,
-				6686E29D21957562001EC8BE /* HJSecurity.h */,
-				6686E29E21957562001EC8BE /* HJSecurity.m */,
-				66C8A199219E5FEC001C6485 /* coinapi.crt */,
-				66C8A19A219E5FEC001C6485 /* coinapi.key */,
-				66C8A19B219E7725001C6485 /* coinapi.p12 */,
-				66C8A198219C1768001C6485 /* p.p12 */,
+				66C3DC9C21A5044F002EEC50 /* MXApi */,
 			);
 			path = d;
 			sourceTree = "<group>";
@@ -94,6 +90,22 @@
 				6686E2A121957967001EC8BE /* Security.framework */,
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		66C3DC9C21A5044F002EEC50 /* MXApi */ = {
+			isa = PBXGroup;
+			children = (
+				66C3DC9D21A5044F002EEC50 /* coinapi.p12 */,
+				66C3DC9E21A5044F002EEC50 /* HJSecurity.h */,
+				66C3DC9F21A5044F002EEC50 /* HJSecurity.m */,
+				66C3DCA021A5044F002EEC50 /* MXApi.h */,
+				66C3DCA121A5044F002EEC50 /* MXApi.m */,
+				66C3DCA221A5044F002EEC50 /* MXApiObject.h */,
+				66C3DCA321A5044F002EEC50 /* MXApiObject.m */,
+				66C3DCA421A5044F002EEC50 /* MXPrivateApiObject.h */,
+				66C3DCA521A5044F002EEC50 /* MXPrivateApiObject.m */,
+			);
+			path = MXApi;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -152,9 +164,11 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				66C3DCA721A5044F002EEC50 /* MXApi.m in Sources */,
 				6666367A21940A680060278A /* main.m in Sources */,
-				6686E29F21957562001EC8BE /* HJSecurity.m in Sources */,
-				6686E29521951533001EC8BE /* NetTool.m in Sources */,
+				66C3DCA921A5044F002EEC50 /* MXPrivateApiObject.m in Sources */,
+				66C3DCA821A5044F002EEC50 /* MXApiObject.m in Sources */,
+				66C3DCA621A5044F002EEC50 /* HJSecurity.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

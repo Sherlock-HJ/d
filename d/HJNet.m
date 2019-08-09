@@ -1,24 +1,24 @@
 //
-//  NetTool.m
+//  HJNet.m
 //  d
 //
 //  Created by lyt on 2018/11/9.
 //  Copyright © 2018年 吴宏佳. All rights reserved.
 //
 
-#import "NetTool.h"
+#import "HJNet.h"
 #import "HJSecurity.h"
 
-@interface NSDictionary (NetTool)
+@interface NSDictionary (HJNet)
 - (NSData*)HTTPBody;
 @end
-@implementation NSDictionary (NetTool)
+@implementation NSDictionary (HJNet)
 
 - (NSData*)HTTPBody{
     
     NSMutableString *mutStr = [NSMutableString string];
     [self enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull key, id  _Nonnull obj, BOOL * _Nonnull stop) {
-        [mutStr appendFormat:@"%@=%@&",key,obj ];
+        [mutStr appendFormat:@"%@=%@&",key,obj];
     }];
     NSString *str = [mutStr stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLQueryAllowedCharacterSet]];
     return [str dataUsingEncoding:NSUTF8StringEncoding];
@@ -28,31 +28,20 @@
 @end
 
 
-@interface NetTool ()<NSURLSessionDataDelegate>
-@property (strong, nonatomic) NSURLSession *session;
+@interface HJNet ()<NSURLSessionDataDelegate>
+//@property (strong, nonatomic) NSURLSession *session;
+@property (strong, nonatomic) id<HJNetDelegate> delegate;
 
 @end
 
-@implementation NetTool
-- (NSURLSession *)session{
-    if (!_session) {
-        _session =[NSURLSession sessionWithConfiguration:[NSURLSessionConfiguration defaultSessionConfiguration] delegate:self delegateQueue:[NSOperationQueue mainQueue]];
-    }
-    return _session;
-}
-+(instancetype)share{
-    static NetTool *tool = nil;
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        tool = [[NetTool alloc]init];
-    });
-    return tool;
-}
+@implementation HJNet
 
-+ (NSURLSession*)session{
-    return  [NetTool share].session;
-}
-+ (NSURLSessionTask*)POST:(NSString*)urlStr parameters:(NSDictionary*)params{
++ (NSURLSessionTask*)POST:(NSString*)urlStr parameters:(NSDictionary*)params delegate:(nonnull id<HJNetDelegate>)delegate{
+    HJNet *net = [[HJNet alloc]init];
+    net.delegate = delegate;
+    NSURLSession *session = [NSURLSession sessionWithConfiguration:[NSURLSessionConfiguration defaultSessionConfiguration] delegate:net delegateQueue:[NSOperationQueue mainQueue]];
+    
+    
     NSURL *url = [NSURL URLWithString:urlStr];
     NSMutableURLRequest *mutableRequest = [[NSMutableURLRequest alloc]initWithURL:url];
     mutableRequest.HTTPMethod = @"POST";
@@ -61,7 +50,7 @@
     
     if (![mutableRequest valueForHTTPHeaderField:@"Content-Type"]) {
     }
-    NSURLSessionTask * task = [self.session dataTaskWithRequest:mutableRequest];
+    NSURLSessionTask * task = [session dataTaskWithRequest:mutableRequest];
     [task resume];
     
     return task;
@@ -129,10 +118,10 @@ didBecomeStreamTask:(NSURLSessionStreamTask *)streamTask{
     
     id res = [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingMutableContainers error:nil];
     if (res) {
-        NSLog(@"%@",res);
+        [self.delegate responseSuccess:res];
         
     }else{
-        NSLog(@"%@",[[NSString alloc]initWithData:data encoding:NSUTF8StringEncoding]);
+        [self.delegate responseSuccess:[[NSString alloc]initWithData:data encoding:NSUTF8StringEncoding]];
         
     }
     
